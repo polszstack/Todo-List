@@ -3,18 +3,43 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { RegisterData, ApiError } from '@/types';
+import { FirebaseError } from 'firebase/app';
+import { deleteUser, createUserWithEmailAndPassword, getIdToken, updateProfile } from 'firebase/auth';
+import { firebaseAuth } from '../../lib/firebase';
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState<RegisterData & { confirmPassword: string }>({
+  const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
-  const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const getFirebaseErrorMessage = (error: unknown) => {
+    if (error instanceof FirebaseError) {
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          return 'This email is already registered. Try logging in or resetting your password.';
+        case 'auth/invalid-email':
+          return 'Please enter a valid email address.';
+        case 'auth/weak-password':
+          return 'Password is too weak. Use at least 6 characters.';
+        case 'auth/network-request-failed':
+          return 'Network error. Check your connection and try again.';
+        default:
+          return error.message;
+      }
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'An error occurred';
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,25 +53,33 @@ export default function RegisterPage() {
     }
 
     try {
+      const credential = await createUserWithEmailAndPassword(firebaseAuth, formData.email, formData.password);
+      if (formData.username.trim()) {
+        await updateProfile(credential.user, { displayName: formData.username.trim() });
+      }
+
+      const idToken = await getIdToken(credential.user, true);
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password
-        })
+        body: JSON.stringify({ idToken, username: formData.username }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        router.push('/login?registered=true');
-      } else {
-        setError((data as ApiError).message);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Unable to create session');
       }
-    } catch {
-      setError('An error occurred');
+
+      router.push('/dashboard');
+    } catch (err) {
+      if (firebaseAuth.currentUser) {
+        try {
+          await deleteUser(firebaseAuth.currentUser);
+        } catch {
+          // If rollback fails, keep the auth error visible so the user can retry manually.
+        }
+      }
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -63,8 +96,7 @@ export default function RegisterPage() {
             Create your account and make the list yours.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-stone-700">
-            Build a clean workspace for your tasks with a simple account and a
-            focused dashboard designed to keep momentum.
+            Build a clean workspace for your tasks with a simple account and a focused dashboard designed to keep momentum.
           </p>
           <div className="mt-8 flex flex-wrap gap-3 text-sm text-stone-600">
             <span className="rounded-full border border-stone-300 bg-white/80 px-4 py-2">Quick setup</span>
@@ -76,65 +108,51 @@ export default function RegisterPage() {
         <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-8">
           <div className="mb-6">
             <h2 className="text-3xl font-semibold tracking-tight">Register</h2>
-            <p className="mt-2 text-sm text-stone-600">
-              Create your account to start tracking tasks.
-            </p>
+            <p className="mt-2 text-sm text-stone-600">Create your Firebase account to start tracking tasks.</p>
           </div>
-          {error && (
-            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+          {error && <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700">
-                Username
-              </label>
+              <label className="mb-2 block text-sm font-medium text-stone-700">Username</label>
               <input
                 type="text"
                 required
                 className="w-full rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
                 value={formData.username}
-                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 disabled={loading}
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700">
-                Email
-              </label>
+              <label className="mb-2 block text-sm font-medium text-stone-700">Email</label>
               <input
                 type="email"
                 required
                 className="w-full rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled={loading}
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700">
-                Password
-              </label>
+              <label className="mb-2 block text-sm font-medium text-stone-700">Password</label>
               <input
                 type="password"
                 required
                 className="w-full rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 disabled={loading}
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700">
-                Confirm Password
-              </label>
+              <label className="mb-2 block text-sm font-medium text-stone-700">Confirm Password</label>
               <input
                 type="password"
                 required
                 className="w-full rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 disabled={loading}
               />
             </div>

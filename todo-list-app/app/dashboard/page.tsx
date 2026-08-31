@@ -1,7 +1,9 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
-import { CreateTodoInput, Todo, UpdateTodoInput } from '../types';
+import { useRouter } from 'next/navigation';
+import { CreateTodoInput, Todo, UpdateTodoInput } from '../../types';
 
 const Icons = {
   Clipboard: (props: { className?: string }) => (
@@ -200,7 +202,7 @@ const DashboardPage: NextPage = () => {
               <div>
                 <h1 className="text-3xl font-semibold tracking-tight">My Todo List</h1>
                 <p className="mt-1 text-sm text-stone-600">
-                  {stats.total} total • {stats.active} active • {stats.completed} completed • {stats.completionRate}% complete
+                  {stats.total} total  {stats.active} active  {stats.completed} completed  {stats.completionRate}% complete
                 </p>
               </div>
             </div>

@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes
-  const publicRoutes = ['/login', '/register'];
+  const publicRoutes = ['/login', '/register', '/reset-password'];
   if (publicRoutes.includes(pathname)) {
     if (token && !isTokenExpired(token)) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -46,5 +46,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/register'],
+  matcher: ['/dashboard/:path*', '/login', '/register', '/reset-password'],
 };

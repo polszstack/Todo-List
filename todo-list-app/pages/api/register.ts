@@ -1,10 +1,6 @@
-// pages/api/register.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import mysql from 'mysql2/promise';
-import pool from '../../lib/db';
-import { hashPassword } from '../../lib/auth';
-import { validateRegisterData } from '../../lib/validation';
-import { RegisterData, AuthResponse, ApiError } from '../../types';
+import { createAppSessionFromFirebaseIdToken } from '../../lib/session';
+import { AuthResponse, ApiError } from '../../types';
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,38 +11,17 @@ export default async function handler(
   }
 
   try {
-    const { username, email, password } = req.body as RegisterData;
-
-    // Validate input
-    const validationErrors = validateRegisterData({ username, email, password });
-    if (validationErrors.length > 0) {
-      return res.status(400).json({ 
-        message: validationErrors.map(e => e.message).join(', ') 
-      });
+    const { idToken, username } = req.body as { idToken?: string; username?: string };
+    if (!idToken) {
+      return res.status(400).json({ message: 'Missing Firebase ID token' });
     }
 
-    // Check if user exists
-    const [existingUsers] = await pool.query<mysql.RowDataPacket[]>(
-      'SELECT id FROM users WHERE username = ? OR email = ?',
-      [username, email]
-    );
-
-    if (existingUsers.length > 0) {
-      return res.status(400).json({ 
-        message: 'Username or email already exists' 
-      });
-    }
-
-    // Hash password and create user
-    const hashedPassword = await hashPassword(password);
-    const [result] = await pool.query<mysql.ResultSetHeader>(
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-      [username, email, hashedPassword]
-    );
+    const { user, setCookie } = await createAppSessionFromFirebaseIdToken(idToken, username);
+    res.setHeader('Set-Cookie', setCookie);
 
     res.status(201).json({ 
       message: 'User created successfully',
-      userId: result.insertId 
+      user
     });
   } catch (error) {
     console.error('Registration error:', error);
