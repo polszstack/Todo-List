@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FirebaseError } from 'firebase/app';
-import { deleteUser, createUserWithEmailAndPassword, getIdToken, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, signOut, updateProfile } from 'firebase/auth';
 import { firebaseAuth } from '../../lib/firebase';
 
 export default function RegisterPage() {
@@ -53,32 +53,17 @@ export default function RegisterPage() {
     }
 
     try {
-      const credential = await createUserWithEmailAndPassword(firebaseAuth, formData.email, formData.password);
-      if (formData.username.trim()) {
-        await updateProfile(credential.user, { displayName: formData.username.trim() });
+      const email = formData.email.trim();
+      const username = formData.username.trim();
+      const credential = await createUserWithEmailAndPassword(firebaseAuth, email, formData.password);
+      if (username) {
+        await updateProfile(credential.user, { displayName: username });
       }
 
-      const idToken = await getIdToken(credential.user, true);
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken, username: formData.username }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Unable to create session');
-      }
-
-      router.push('/dashboard');
+      await sendEmailVerification(credential.user);
+      await signOut(firebaseAuth);
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      if (firebaseAuth.currentUser) {
-        try {
-          await deleteUser(firebaseAuth.currentUser);
-        } catch {
-          // If rollback fails, keep the auth error visible so the user can retry manually.
-        }
-      }
       setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);

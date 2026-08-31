@@ -1,0 +1,63 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { sendEmailVerification } from 'firebase/auth';
+import { firebaseAuth } from '../../lib/firebase';
+
+export default function VerifyEmailPage() {
+  const params = useSearchParams();
+  const email = params.get('email') || '';
+  const [message, setMessage] = useState(
+    email ? `We sent a verification link to ${email}. Check your inbox before logging in.` : 'Check your inbox for a verification link.'
+  );
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const resend = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      if (!firebaseAuth.currentUser) {
+        throw new Error('Please register again or log in before resending the verification email.');
+      }
+      await sendEmailVerification(firebaseAuth.currentUser);
+      setMessage('Verification email sent again. Please check your inbox.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to resend verification email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4efe8_0%,_#faf7f2_38%,_#f3f0ea_100%)] text-stone-900">
+      <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-6 py-16">
+        <section className="w-full rounded-3xl border border-white/70 bg-white/85 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
+          <h1 className="text-4xl font-semibold tracking-tight">Verify your email</h1>
+          <p className="mt-3 text-stone-600">{message}</p>
+
+          {error && <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={resend}
+              disabled={loading}
+              className="inline-flex h-12 items-center justify-center rounded-full bg-stone-900 px-6 text-sm font-medium text-white transition hover:bg-stone-800 disabled:opacity-50"
+            >
+              {loading ? 'Sending...' : 'Resend verification email'}
+            </button>
+            <Link
+              href="/login"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-stone-300 bg-white px-6 text-sm font-medium text-stone-900 transition hover:bg-stone-50"
+            >
+              Go to login
+            </Link>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

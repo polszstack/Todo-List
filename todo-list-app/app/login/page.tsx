@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithEmailAndPassword, getIdToken } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import { signInWithEmailAndPassword, getIdToken, sendEmailVerification, signOut } from 'firebase/auth';
 import { firebaseAuth } from '../../lib/firebase';
 
 export default function LoginPage() {
@@ -12,13 +13,43 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const getFirebaseErrorMessage = (error: unknown) => {
+    if (error instanceof FirebaseError) {
+      switch (error.code) {
+        case 'auth/invalid-credential':
+          return 'Invalid email or password, or the account is not verified yet.';
+        case 'auth/invalid-email':
+          return 'Please enter a valid email address.';
+        case 'auth/network-request-failed':
+          return 'Network error. Check your connection and try again.';
+        default:
+          return error.message;
+      }
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'An error occurred';
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const credential = await signInWithEmailAndPassword(firebaseAuth, formData.email, formData.password);
+      const email = formData.email.trim();
+      const credential = await signInWithEmailAndPassword(firebaseAuth, email, formData.password);
+
+      if (!credential.user.emailVerified) {
+        await sendEmailVerification(credential.user);
+        await signOut(firebaseAuth);
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
       const idToken = await getIdToken(credential.user, true);
 
       const res = await fetch('/api/login', {
@@ -34,7 +65,7 @@ export default function LoginPage() {
 
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -101,9 +132,7 @@ export default function LoginPage() {
             <Link href="/reset-password" className="font-medium text-stone-700 underline-offset-4 hover:underline">
               Forgot password?
             </Link>
-            <Link href="/register" className="font-medium text-stone-900 underline-offset-4 hover:underline">
-              Register
-            </Link>
+            <Link href="/register" className="font-medium text-stone-900 underline-offset-4 hover:underline">Register</Link>
           </div>
         </section>
       </main>
