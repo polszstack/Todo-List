@@ -73,27 +73,27 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4efe8_0%,_#faf7f2_38%,_#f3f0ea_100%)] text-stone-900">
-      <main className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-10 px-6 py-16 sm:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-12">
+      <main className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-16">
         <section className="max-w-xl">
-          <div className="mb-6 inline-flex items-center rounded-full border border-stone-300/70 bg-white/70 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur">
+          <div className="mb-5 inline-flex items-center rounded-full border border-stone-300/70 bg-white/70 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur sm:mb-6">
             Welcome back
           </div>
-          <h1 className="text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
+          <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
             Sign in and pick up right where you left off.
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-stone-700">
+          <p className="mt-5 max-w-xl text-base leading-7 text-stone-700 sm:mt-6 sm:text-lg sm:leading-8">
             Your todo list, ready when you are. Keep tasks moving from anywhere with a calm, focused interface.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3 text-sm text-stone-600">
-            <span className="rounded-full border border-stone-300 bg-white/80 px-4 py-2">Private session</span>
-            <span className="rounded-full border border-stone-300 bg-white/80 px-4 py-2">Fast access</span>
-            <span className="rounded-full border border-stone-300 bg-white/80 px-4 py-2">Todo dashboard</span>
+          <div className="mt-7 flex flex-wrap gap-2 text-sm text-stone-600 sm:mt-8 sm:gap-3">
+            <span className="rounded-full border border-stone-300 bg-white/80 px-3 py-2 sm:px-4">Private session</span>
+            <span className="rounded-full border border-stone-300 bg-white/80 px-3 py-2 sm:px-4">Fast access</span>
+            <span className="rounded-full border border-stone-300 bg-white/80 px-3 py-2 sm:px-4">Todo dashboard</span>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-8">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-6 sm:p-8">
           <div className="mb-6">
-            <h2 className="text-3xl font-semibold tracking-tight">Login</h2>
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Login</h2>
             <p className="mt-2 text-sm text-stone-600">Use your Firebase email and password to continue.</p>
           </div>
           {error && <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}

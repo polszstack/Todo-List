@@ -182,8 +182,8 @@ const DashboardPage: NextPage = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#f4efe8_0%,_#faf7f2_38%,_#f3f0ea_100%)]">
-        <div className="rounded-3xl border border-white/70 bg-white/85 px-6 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#f4efe8_0%,_#faf7f2_38%,_#f3f0ea_100%)] px-4">
+        <div className="rounded-3xl border border-white/70 bg-white/85 px-5 py-4 text-sm shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:px-6 sm:py-5 sm:text-base">
           Loading your todos...
         </div>
       </div>
@@ -192,23 +192,23 @@ const DashboardPage: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4efe8_0%,_#faf7f2_38%,_#f3f0ea_100%)] text-stone-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        <header className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="rounded-2xl bg-stone-900 p-3 text-white shadow-lg">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-8">
+        <header className="rounded-3xl border border-white/70 bg-white/85 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+              <div className="rounded-2xl bg-stone-900 p-2.5 text-white shadow-lg sm:p-3">
                 <Icons.Clipboard />
               </div>
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight">My Todo List</h1>
-                <p className="mt-1 text-sm text-stone-600">
-                  {stats.total} total  {stats.active} active  {stats.completed} completed  {stats.completionRate}% complete
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Todo List</h1>
+                <p className="mt-1 text-xs leading-5 text-stone-600 sm:text-sm">
+                  {stats.total} total {' '} {stats.active} active {' '} {stats.completed} completed {' '} {stats.completionRate}% complete
                 </p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-stone-900 px-5 text-sm font-medium text-white transition hover:bg-stone-800"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 text-sm font-medium text-white transition hover:bg-stone-800 sm:w-auto"
             >
               <Icons.Logout />
               Logout
@@ -216,7 +216,7 @@ const DashboardPage: NextPage = () => {
           </div>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
           <StatCard title="Total Tasks" value={stats.total} />
           <StatCard title="Active Tasks" value={stats.active} />
           <StatCard title="Completed Tasks" value={stats.completed} />
@@ -229,14 +229,14 @@ const DashboardPage: NextPage = () => {
           </div>
         )}
 
-        <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
+        <section className="rounded-3xl border border-white/70 bg-white/90 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-6">
           <form onSubmit={createTodo} className="space-y-4">
             <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
               <input
                 type="text"
                 placeholder="What's on your mind?"
                 required
-                className="w-full rounded-2xl border-2 border-stone-200 bg-white px-5 py-3.5 text-stone-800 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
+                className="w-full rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 text-stone-800 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200 sm:px-5 sm:py-3.5"
                 value={newTodo.title}
                 onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
               />
@@ -252,14 +252,14 @@ const DashboardPage: NextPage = () => {
             <textarea
               placeholder="Add a description (optional)"
               rows={2}
-              className="w-full resize-none rounded-2xl border-2 border-stone-200 bg-white px-5 py-3.5 text-stone-800 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200"
+              className="w-full resize-none rounded-2xl border-2 border-stone-200 bg-white px-4 py-3 text-stone-800 outline-none transition focus:border-stone-900 focus:ring-2 focus:ring-stone-200 sm:px-5 sm:py-3.5"
               value={newTodo.description || ''}
               onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
             />
           </form>
         </section>
 
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>All</FilterButton>
             <FilterButton active={filter === 'active'} onClick={() => setFilter('active')}>Active</FilterButton>
@@ -277,11 +277,11 @@ const DashboardPage: NextPage = () => {
           </div>
         </section>
 
-        <section className="flex-1 space-y-4 pb-4">
+        <section className="flex-1 space-y-3 pb-6 sm:space-y-4 sm:pb-4">
           {filteredTodos.length === 0 ? (
-            <div className="rounded-3xl border border-stone-200 bg-white p-14 text-center shadow-xl">
+            <div className="rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-xl sm:p-14">
               <div className="mx-auto flex max-w-sm flex-col items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-stone-900">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 text-stone-900 sm:h-20 sm:w-20">
                   <Icons.Clipboard className="h-10 w-10" />
                 </div>
                 <div>
@@ -326,9 +326,9 @@ const DashboardPage: NextPage = () => {
 
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-md">
+    <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-md sm:p-5">
       <p className="text-sm font-medium text-stone-500">{title}</p>
-      <p className="mt-1 text-3xl font-semibold text-stone-900">{value}</p>
+      <p className="mt-1 text-2xl font-semibold text-stone-900 sm:text-3xl">{value}</p>
     </div>
   );
 }
@@ -345,7 +345,7 @@ function FilterButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+      className={`rounded-full px-3 py-2 text-sm font-medium transition sm:px-4 ${
         active ? 'bg-stone-900 text-white' : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-100'
       }`}
     >
@@ -364,9 +364,9 @@ function TodoItem({
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
-}) {
+  }) {
   return (
-    <div className="p-5 sm:p-6">
+    <div className="p-4 sm:p-5 sm:py-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <button onClick={onToggle} className="mt-1 flex-shrink-0" aria-label="Toggle todo">
@@ -427,7 +427,7 @@ function TodoEditForm({
   todo: Todo;
   onSave: (updates: UpdateTodoInput) => void;
   onCancel: () => void;
-}) {
+  }) {
   const [editedTodo, setEditedTodo] = useState<UpdateTodoInput>({
     title: todo.title,
     description: todo.description,
@@ -439,7 +439,7 @@ function TodoEditForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-stone-50 p-5 sm:p-6">
+    <form onSubmit={handleSubmit} className="bg-stone-50 p-4 sm:p-6">
       <div className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700">Task Title *</label>
