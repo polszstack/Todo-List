@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword, getIdToken, sendEmailVerification, signOut } from 'firebase/auth';
@@ -11,7 +10,6 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const getFirebaseErrorMessage = (error: unknown) => {
     if (error instanceof FirebaseError) {
@@ -46,7 +44,7 @@ export default function LoginPage() {
       if (!credential.user.emailVerified) {
         await sendEmailVerification(credential.user);
         await signOut(firebaseAuth);
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
         return;
       }
 
@@ -63,7 +61,8 @@ export default function LoginPage() {
         throw new Error(data.message || 'Unable to create session');
       }
 
-      router.push('/dashboard');
+      // Reload the protected route so middleware reads the cookie just created by the API.
+      window.location.assign('/dashboard');
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {
