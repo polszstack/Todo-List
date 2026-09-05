@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { sendEmailVerification } from 'firebase/auth';
 import { firebaseAuth } from '../../lib/firebase';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const params = useSearchParams();
-  const email = params.get('email') || '';
+  const email = params?.get('email') || '';
   const [message, setMessage] = useState(
     email ? `We sent a verification link to ${email}. Check your inbox before logging in.` : 'Check your inbox for a verification link.'
   );
@@ -59,5 +59,13 @@ export default function VerifyEmailPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

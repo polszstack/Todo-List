@@ -1,6 +1,7 @@
 import { generateToken } from './auth';
 import pool from './db';
 import { verifyFirebaseIdToken } from './firebaseToken';
+import mysql from 'mysql2/promise';
 
 interface UserRow {
   id: number;
@@ -17,12 +18,12 @@ export async function createAppSessionFromFirebaseIdToken(idToken: string, usern
     throw new Error('Firebase token is missing required claims');
   }
 
-  const [rows] = await pool.query<UserRow[]>(
+  const [rows] = await pool.query<mysql.RowDataPacket[]>(
     'SELECT id, username, email FROM users WHERE email = ? LIMIT 1',
     [email]
   );
 
-  let user = rows[0];
+  let user = rows[0] as UserRow | undefined;
   if (!user) {
     const baseUsername = username?.trim() || email.split('@')[0];
     const candidates = [
@@ -34,7 +35,7 @@ export async function createAppSessionFromFirebaseIdToken(idToken: string, usern
     let lastError: unknown = null;
     for (const candidate of candidates) {
       try {
-        const [result] = await pool.query<{ insertId: number }>(
+        const [result] = await pool.query<mysql.ResultSetHeader>(
           'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
           [candidate, email, firebaseUid]
         );
