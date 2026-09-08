@@ -7,6 +7,9 @@ interface DbConfig {
   password: string;
   database: string;
   port?: number;
+  ssl?: {
+    rejectUnauthorized: boolean;
+  };
   waitForConnections: boolean;
   connectionLimit: number;
   queueLimit: number;
@@ -17,17 +20,27 @@ function buildDbConfig(): DbConfig {
 
   if (databaseUrl) {
     const url = new URL(databaseUrl);
+    const sslMode = url.searchParams.get('ssl-mode')?.toUpperCase();
+    const useSsl = sslMode === 'REQUIRED' || sslMode === 'VERIFY_CA' || sslMode === 'VERIFY_IDENTITY';
 
-    return {
+    const config: DbConfig = {
       host: url.hostname,
       port: url.port ? Number(url.port) : 3306,
       user: decodeURIComponent(url.username),
       password: decodeURIComponent(url.password),
-      database: url.pathname.replace(/^\//, '') || 'railway',
+      database: url.pathname.replace(/^\//, '') || 'defaultdb',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
     };
+
+    if (useSsl) {
+      config.ssl = {
+        rejectUnauthorized: sslMode === 'VERIFY_IDENTITY',
+      };
+    }
+
+    return config;
   }
 
   return {

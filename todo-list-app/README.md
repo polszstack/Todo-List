@@ -37,5 +37,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Deployment Notes
 
-For production database access, set `DATABASE_URL` to your Railway MySQL connection string.
+For production database access, set `DATABASE_URL` to your MySQL connection string.
+If your provider requires TLS, include `ssl-mode=REQUIRED` in the URL query string, for example:
+
+```text
+mysql://USER:PASSWORD@HOST:PORT/defaultdb?ssl-mode=REQUIRED
+```
+
 The app will also continue to support the older `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` variables for local development.
