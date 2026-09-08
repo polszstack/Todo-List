@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   // Public routes
   const publicRoutes = ['/login', '/register', '/reset-password'];
   if (publicRoutes.includes(pathname)) {
-    if (token && !isTokenExpired(token)) {
+    if (pathname === '/login' && token && !isTokenExpired(token)) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return NextResponse.next();
