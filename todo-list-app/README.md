@@ -44,4 +44,4 @@ If your provider requires TLS, include `ssl-mode=REQUIRED` in the URL query stri
 mysql://USER:PASSWORD@HOST:PORT/defaultdb?ssl-mode=REQUIRED
 ```
 
-The app will also continue to support the older `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` variables for local development.
+The app will also continue to support the older `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` variables for local development. Set `DB_PORT` to the port used by your local MySQL service (usually `3306`).
