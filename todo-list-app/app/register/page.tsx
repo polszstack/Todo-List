@@ -53,6 +53,14 @@ export default function RegisterPage() {
     }
 
     try {
+      // A visitor can open this page while another account still has an app
+      // session. Clear that session first so the "Go to login" link cannot be
+      // redirected to the previous account's dashboard after registration.
+      const logoutResponse = await fetch('/api/logout', { method: 'POST' });
+      if (!logoutResponse.ok) {
+        throw new Error('Unable to start registration. Please try again.');
+      }
+
       const email = formData.email.trim();
       const username = formData.username.trim();
       const credential = await createUserWithEmailAndPassword(firebaseAuth, email, formData.password);
